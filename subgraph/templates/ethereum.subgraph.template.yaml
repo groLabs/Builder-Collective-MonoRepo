@@ -1,0 +1,63 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+# *******************************************************************************************
+# ***********   F A C T O R Y   *************************************************************
+# *******************************************************************************************
+  - kind: ethereum/contract
+    name: Factory
+    network: {{network}}
+    source:
+      address: "{{BuidlerFactoryAddress}}"
+      abi: BuidlerFactory
+      startBlock: {{BuidlerFactoryStartBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - TBD
+      abis:
+        - name: BuidlerFactory
+          file: ./abis/ethereum/BuidlerFactory.json
+      eventHandlers:
+        - event: LogNewBuilderProxyDeployed(address,address)
+          handler: handleNewProxy
+      file: ./src/mappings/factory.ts
+# *******************************************************************************************
+# ***********   BCP (Builder Collective Pool) via TEMPLATE **********************************
+# *******************************************************************************************
+templates:
+  - kind: ethereum/contract
+    name: BuidlCollective
+    network: {{network}}
+    source:
+      abi: BuidlCollective
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - TBD
+      abis:
+        - name: BuidlerFactory
+          file: ./abis/ethereum/BuidlerFactory.json
+        - name: BuidlCollective
+          file: ./abis/ethereum/BuidlCollective.json
+        - name: ERC20
+          file: ./abis/ethereum/ERC20.json
+      eventHandlers:
+        - event: LogNewCollectiveInitialized(string[],address[],uint128[],address[],uint256[],uint32,uint32)
+          handler: handleNewCollectiveInitialized
+        - event: LogNewAdmin(address)
+          handler: handleNewAdmin
+        - event: LogNewPoolInitialized(uint256)
+          handler: handleNewPoolInitialized
+        - event: LogTokensStaked(address,uint256,uint256,uint256,uint256,uint256)
+          handler: handleTokensStaked
+        - event: LogTokensUnstaked(address,uint256,uint256,uint256,uint256,uint256)
+          handler: handleTokensUnstaked
+        - event: LogTokensClaimed(address,uint256,address[],uint256[])
+          handler: handleTokensClaimed
+      file: ./src/mappings/bcp.ts

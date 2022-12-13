@@ -1,0 +1,25 @@
+{
+  "name": "bcollective",
+  "license": "UNLICENSED",
+  "scripts": {
+    "eth-prod-local": "SCOPE=prod BLOCKCHAIN=ethereum NETWORK=mainnet yarn prepare:subgraph && yarn deploy:mainnet:prod:local",
+    "eth-prod-aws": "SCOPE=prod BLOCKCHAIN=ethereum NETWORK=mainnet yarn prepare:subgraph && yarn deploy:mainnet:prod:aws",
+    "prepare:subgraph": "mustache ./config/${NETWORK}-${SCOPE}.json ./templates/${BLOCKCHAIN}.subgraph.template.yaml > subgraph.yaml && rm -rf generated && yarn generate:schema && graph codegen && graph build",
+    "generate:schema": "cp ./schemas/${BLOCKCHAIN}.schema.graphql schema.graphql",
+    "deploy:mainnet:prod:local": "yarn create-local && yarn deploy-local",
+    "deploy:mainnet:prod:aws": "yarn create-aws && yarn deploy-aws",
+    "create-local": "graph create --node http://localhost:8020/ groLabs/hackathon-subgraph",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 groLabs/hackathon-subgraph",
+    "remove-local": "graph remove --node http://localhost:8020/ groLabs/hackathon-subgraph",
+    "create-aws": "graph create --node http://ec2-13-40-62-97.eu-west-2.compute.amazonaws.com:8020 groLabs/hackathon-subgraph",
+    "deploy-aws": "graph deploy --node http://ec2-13-40-62-97.eu-west-2.compute.amazonaws.com:8020 --ipfs http://ec2-13-40-62-97.eu-west-2.compute.amazonaws.com:5001 groLabs/hackathon-subgraph",
+    "remove-aws": "graph remove --node http://ec2-13-40-62-97.eu-west-2.compute.amazonaws.com:8020 groLabs/hackathon-subgraph",
+    "codegen": "graph codegen",
+    "build": "graph build"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.31.0",
+    "@graphprotocol/graph-ts": "0.27.0",
+    "mustache": "^4.2.0"
+  }
+}
