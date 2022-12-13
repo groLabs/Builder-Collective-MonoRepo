@@ -1,0 +1,1 @@
+Files 'docker-compose.yml' and 'blockchain_restart.sh' should be added in local graph node at /docker
