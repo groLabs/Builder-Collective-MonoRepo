@@ -75,11 +75,10 @@ contract BaseSetup is Test {
 
     function mockToken(
         uint256 _amount,
-        address _user,
-        uint8 _decimals
+        address _user
     ) public returns (address) {
         vm.prank(_user);
-        MockERC20 token = new MockERC20("test token", "tt", _decimals);
+        MockERC20 token = new MockERC20("test token", "tt", 18);
         token.mint(_user, _amount);
         vm.stopPrank();
         return address(token);

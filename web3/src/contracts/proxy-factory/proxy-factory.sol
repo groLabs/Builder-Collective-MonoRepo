@@ -5,11 +5,8 @@ import "@openzeppelin/proxy/Clones.sol";
 import "@openzeppelin/access/Ownable.sol";
 import "forge-std/console2.sol";
 
-interface IProxy {
-    function setAdmin(address _newAdmin) external;
-}
-
 contract BuidlerFactory is Ownable {
+
     address public implementationContract;
     string public implementationVersion;
     address[] public proxies;
@@ -23,24 +20,21 @@ contract BuidlerFactory is Ownable {
         implementationVersion = "0.0.1";
     }
 
-    function setImplementationContract(
-        address _implementation,
-        string memory _implementationVersion
-    ) external onlyOwner {
+    function setImplementationContract(address _implementation, string memory _implementationVersion) external onlyOwner {
         implementationContract = _implementation;
         implementationVersion = _implementationVersion;
         emit LogBuilderContractUpdated(_implementation, _implementationVersion);
     }
 
-    function createNewBuilder(
-        bytes memory _dataPayload
-    ) external payable returns (address instance) {
+    function createNewBuilder(bytes memory _dataPayload) payable external returns(address instance) {
         instance = Clones.clone(implementationContract);
         bool success;
         (success, ) = instance.call{value: msg.value}(_dataPayload);
-        console2.log("initiate %s", success);
+        console2.log('initiate %s', success);
         require(success);
-        IProxy(instance).setAdmin(msg.sender);
+        bytes memory admin = abi.encodeWithSignature("updateAdmin(address)", msg.sender);
+        (success, ) = instance.call{value: msg.value}(admin);
+        require(success);
         proxies.push(instance);
         emit LogNewBuilderProxyDeployed(instance, msg.sender);
         return instance;
